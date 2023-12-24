@@ -1,3 +1,6 @@
+#pragma once
+
+#include <utility>
 #include <core.hh>
 #include <memory.hh>
 #include <opcodes.hh>
@@ -37,8 +40,10 @@ class CPU
 
     u64 _cycles;
 
-    auto Fetch(Memory& memory, AddressingMode addressingMode = AddressingMode::Immediate) -> u8;
+    auto Fetch(Memory& memory, AddressingMode addressingMode = AddressingMode::Immediate) -> std::pair<u8, u16>;
     auto Execute(Memory& memory, OperationCode opcode) -> void;
 
     auto ADC(Memory& memory, AddressingMode addressingMode) -> void;
+    auto AND(Memory& memory, AddressingMode addressingMode) -> void;
+    auto ASL(Memory& memory, AddressingMode addressingMode) -> void;
 };
