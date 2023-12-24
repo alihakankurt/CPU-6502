@@ -8,13 +8,13 @@ CPU::CPU()
 
 auto CPU::Reset() -> void
 {
-    PC = 0xFFFC;
+    PC = 0x0600;
     SP = 0xFF;
     A = 0x00;
     X = 0x00;
     Y = 0x00;
     PS = 0x00;
-    _cycles += 7;
+    _cycles += 8;
 }
 
 auto CPU::Run(Memory& memory) -> u64

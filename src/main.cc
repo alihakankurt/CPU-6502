@@ -10,9 +10,10 @@ auto main(int argc, char** argv) -> int
     CPU cpu;
     Memory memory;
 
-    memory.Write(0xFFFC, static_cast<u8>(OperationCode::ADC_Immediate));
-    memory.Write(0xFFFD, 0x31);
-    memory.Write(0xFFFE, static_cast<u8>(OperationCode::BRK_Implied));
+    u16 address = 0x0600;
+    memory.Write(address++, static_cast<u8>(OperationCode::ADC_Immediate));
+    memory.Write(address++, 0x31);
+    memory.Write(address++, static_cast<u8>(OperationCode::BRK_Implied));
 
     u64 cycles = cpu.Run(memory);
 
