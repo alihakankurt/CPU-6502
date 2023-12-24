@@ -1,4 +1,6 @@
 #include <cpu.hh>
+#include <unordered_map>
+#include <functional>
 
 CPU::CPU()
 {
@@ -117,78 +119,40 @@ auto CPU::Fetch(Memory& memory, AddressingMode addressingMode) -> std::pair<u8, 
 
 auto CPU::Execute(Memory& memory, OperationCode opcode) -> void
 {
-    switch (opcode)
+    // TODO: Consider using a array of function pointers instead of a map.
+
+    // clang-format off
+    std::unordered_map<OperationCode, std::function<void(Memory&)>> instructions =
     {
-        case OperationCode::ADC_Immediate:
-            ADC(memory, AddressingMode::Immediate);
-            break;
-        case OperationCode::ADC_ZeroPage:
-            ADC(memory, AddressingMode::ZeroPage);
-            break;
-        case OperationCode::ADC_ZeroPageX:
-            ADC(memory, AddressingMode::ZeroPageX);
-            break;
-        case OperationCode::ADC_Absolute:
-            ADC(memory, AddressingMode::Absolute);
-            break;
-        case OperationCode::ADC_AbsoluteX:
-            ADC(memory, AddressingMode::AbsoluteX);
-            break;
-        case OperationCode::ADC_AbsoluteY:
-            ADC(memory, AddressingMode::AbsoluteY);
-            break;
-        case OperationCode::ADC_IndirectX:
-            ADC(memory, AddressingMode::IndirectX);
-            break;
-        case OperationCode::ADC_IndirectY:
-            ADC(memory, AddressingMode::IndirectY);
-            break;
-        case OperationCode::AND_Immediate:
-            AND(memory, AddressingMode::Immediate);
-            break;
-        case OperationCode::AND_ZeroPage:
-            AND(memory, AddressingMode::ZeroPage);
-            break;
-        case OperationCode::AND_ZeroPageX:
-            AND(memory, AddressingMode::ZeroPageX);
-            break;
-        case OperationCode::AND_Absolute:
-            AND(memory, AddressingMode::Absolute);
-            break;
-        case OperationCode::AND_AbsoluteX:
-            AND(memory, AddressingMode::AbsoluteX);
-            break;
-        case OperationCode::AND_AbsoluteY:
-            AND(memory, AddressingMode::AbsoluteY);
-            break;
-        case OperationCode::AND_IndirectX:
-            AND(memory, AddressingMode::IndirectX);
-            break;
-        case OperationCode::AND_IndirectY:
-            AND(memory, AddressingMode::IndirectY);
-            break;
-        case OperationCode::ASL_Accumulator:
-            ASL(memory, AddressingMode::Accumulator);
-            break;
-        case OperationCode::ASL_ZeroPage:
-            ASL(memory, AddressingMode::ZeroPage);
-            break;
-        case OperationCode::ASL_ZeroPageX:
-            ASL(memory, AddressingMode::ZeroPageX);
-            break;
-        case OperationCode::ASL_Absolute:
-            ASL(memory, AddressingMode::Absolute);
-            break;
-        case OperationCode::ASL_AbsoluteX:
-            ASL(memory, AddressingMode::AbsoluteX);
-            break;
-        case OperationCode::BRK_Implied:
-            BF = 1;
-            _cycles += 6;
-            break;
-        default:
-            break;
-    }
+        { OperationCode::ADC_Immediate, [this](Memory& memory) { ADC(memory, AddressingMode::Immediate); } },
+        { OperationCode::ADC_ZeroPage, [this](Memory& memory) { ADC(memory, AddressingMode::ZeroPage); } },
+        { OperationCode::ADC_ZeroPageX, [this](Memory& memory) { ADC(memory, AddressingMode::ZeroPageX); } },
+        { OperationCode::ADC_Absolute, [this](Memory& memory) { ADC(memory, AddressingMode::Absolute); } },
+        { OperationCode::ADC_AbsoluteX, [this](Memory& memory) { ADC(memory, AddressingMode::AbsoluteX); } },
+        { OperationCode::ADC_AbsoluteY, [this](Memory& memory) { ADC(memory, AddressingMode::AbsoluteY); } },
+        { OperationCode::ADC_IndirectX, [this](Memory& memory) { ADC(memory, AddressingMode::IndirectX); } },
+        { OperationCode::ADC_IndirectY, [this](Memory& memory) { ADC(memory, AddressingMode::IndirectY); } },
+        { OperationCode::AND_Immediate, [this](Memory& memory) { AND(memory, AddressingMode::Immediate); } },
+        { OperationCode::AND_ZeroPage, [this](Memory& memory) { AND(memory, AddressingMode::ZeroPage); } },
+        { OperationCode::AND_ZeroPageX, [this](Memory& memory) { AND(memory, AddressingMode::ZeroPageX); } },
+        { OperationCode::AND_Absolute, [this](Memory& memory) { AND(memory, AddressingMode::Absolute); } },
+        { OperationCode::AND_AbsoluteX, [this](Memory& memory) { AND(memory, AddressingMode::AbsoluteX); } },
+        { OperationCode::AND_AbsoluteY, [this](Memory& memory) { AND(memory, AddressingMode::AbsoluteY); } },
+        { OperationCode::AND_IndirectX, [this](Memory& memory) { AND(memory, AddressingMode::IndirectX); } },
+        { OperationCode::AND_IndirectY, [this](Memory& memory) { AND(memory, AddressingMode::IndirectY); } },
+        { OperationCode::ASL_Accumulator, [this](Memory& memory) { ASL(memory, AddressingMode::Accumulator); } },
+        { OperationCode::ASL_ZeroPage, [this](Memory& memory) { ASL(memory, AddressingMode::ZeroPage); } },
+        { OperationCode::ASL_ZeroPageX, [this](Memory& memory) { ASL(memory, AddressingMode::ZeroPageX); } },
+        { OperationCode::ASL_Absolute, [this](Memory& memory) { ASL(memory, AddressingMode::Absolute); } },
+        { OperationCode::ASL_AbsoluteX, [this](Memory& memory) { ASL(memory, AddressingMode::AbsoluteX); } },
+        { OperationCode::BCC_Relative, [this](Memory& memory) { BCC(memory, AddressingMode::Relative); } },
+        { OperationCode::BCS_Relative, [this](Memory& memory) { BCS(memory, AddressingMode::Relative); } },
+        { OperationCode::BEQ_Relative, [this](Memory& memory) { BEQ(memory, AddressingMode::Relative); } },
+        { OperationCode::BRK_Implied, [this](Memory& memory) { BRK(memory, AddressingMode::Implicit); } },
+    };
+    // clang-format on
+
+    instructions[opcode](memory);
 }
 
 auto CPU::ADC(Memory& memory, AddressingMode addressingMode) -> void
@@ -225,4 +189,42 @@ auto CPU::ASL(Memory& memory, AddressingMode addressingMode) -> void
     }
 
     memory.Write(address, data);
+}
+
+auto CPU::BCC(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    if (CF == 0)
+    {
+        _cycles += 1 + ((PC & 0xFF00) != ((PC + data) & 0xFF00));
+        PC += data;
+    }
+}
+
+auto CPU::BCS(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    if (CF == 1)
+    {
+        _cycles += 1 + ((PC & 0xFF00) != ((PC + data) & 0xFF00));
+        PC += data;
+    }
+}
+
+auto CPU::BEQ(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    if (ZF == 1)
+    {
+        _cycles += 1 + ((PC & 0xFF00) != ((PC + data) & 0xFF00));
+        PC += data;
+    }
+}
+
+auto CPU::BRK(Memory& memory, AddressingMode addressingMode) -> void
+{
+    (void)memory;
+    (void)addressingMode;
+    BF = 1;
+    _cycles += 6;
 }

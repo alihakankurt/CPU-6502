@@ -46,4 +46,8 @@ class CPU
     auto ADC(Memory& memory, AddressingMode addressingMode) -> void;
     auto AND(Memory& memory, AddressingMode addressingMode) -> void;
     auto ASL(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BCC(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BCS(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BEQ(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BRK(Memory& memory, AddressingMode addressingMode) -> void;
 };
