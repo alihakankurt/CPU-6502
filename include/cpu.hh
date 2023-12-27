@@ -42,6 +42,7 @@ class CPU
 
     auto Fetch(Memory& memory, AddressingMode addressingMode = AddressingMode::Immediate) -> std::pair<u8, u16>;
     auto Execute(Memory& memory, OperationCode opcode) -> void;
+    auto BranchIf(bool condition, u8 offset) -> void;
 
     auto ADC(Memory& memory, AddressingMode addressingMode) -> void;
     auto AND(Memory& memory, AddressingMode addressingMode) -> void;
@@ -49,5 +50,11 @@ class CPU
     auto BCC(Memory& memory, AddressingMode addressingMode) -> void;
     auto BCS(Memory& memory, AddressingMode addressingMode) -> void;
     auto BEQ(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BIT(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BMI(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BNE(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BPL(Memory& memory, AddressingMode addressingMode) -> void;
     auto BRK(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BVC(Memory& memory, AddressingMode addressingMode) -> void;
+    auto BVS(Memory& memory, AddressingMode addressingMode) -> void;
 };

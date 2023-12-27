@@ -65,6 +65,12 @@ auto CPU::Fetch(Memory& memory, AddressingMode addressingMode) -> std::pair<u8, 
             _cycles += 3;
             return std::make_pair(memory.Read(address), address);
         }
+        case AddressingMode::Relative:
+        {
+            u16 data = memory.Read(PC++);
+            _cycles += 2;
+            return std::make_pair(data, PC - 1);
+        }
         case AddressingMode::Absolute:
         {
             u16 address = memory.Read(PC++);
@@ -88,7 +94,6 @@ auto CPU::Fetch(Memory& memory, AddressingMode addressingMode) -> std::pair<u8, 
             _cycles += 3 + ((address & 0xFF00) != ((address + Y) & 0xFF00));
             return std::make_pair(memory.Read(address), address);
         }
-
         case AddressingMode::Indirect:
         {
             u16 address = memory.Read(PC++);
@@ -110,7 +115,6 @@ auto CPU::Fetch(Memory& memory, AddressingMode addressingMode) -> std::pair<u8, 
             return std::make_pair(memory.Read(address) + Y, address);
         }
         case AddressingMode::Implicit:
-        case AddressingMode::Relative:
         {
             return std::make_pair(0, 0);
         }
@@ -153,6 +157,15 @@ auto CPU::Execute(Memory& memory, OperationCode opcode) -> void
     // clang-format on
 
     instructions[opcode](memory);
+}
+
+auto CPU::BranchIf(bool condition, u8 offset) -> void
+{
+    if (condition)
+    {
+        _cycles += 1 + ((PC & 0xFF00) != ((PC + offset) & 0xFF00));
+        PC += offset;
+    }
 }
 
 auto CPU::ADC(Memory& memory, AddressingMode addressingMode) -> void
@@ -221,10 +234,48 @@ auto CPU::BEQ(Memory& memory, AddressingMode addressingMode) -> void
     }
 }
 
+auto CPU::BIT(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    ZF = (A & data) == 0;
+    VF = data & 0x40;
+    NF = data & 0x80;
+}
+
+auto CPU::BMI(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    BranchIf(NF == 1, data);
+}
+
+auto CPU::BNE(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    BranchIf(ZF == 0, data);
+}
+
+auto CPU::BPL(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    BranchIf(NF == 0, data);
+}
+
 auto CPU::BRK(Memory& memory, AddressingMode addressingMode) -> void
 {
     (void)memory;
     (void)addressingMode;
     BF = 1;
     _cycles += 6;
+}
+
+auto CPU::BVC(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    BranchIf(VF == 0, data);
+}
+
+auto CPU::BVS(Memory& memory, AddressingMode addressingMode) -> void
+{
+    auto [data, address] = Fetch(memory, addressingMode);
+    BranchIf(VF == 1, data);
 }
