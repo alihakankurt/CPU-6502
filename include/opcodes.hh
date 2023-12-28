@@ -94,6 +94,7 @@ enum class OperationCode : u8
     DEC_ZeroPage = 0xC6,
     DEC_ZeroPageX = 0xD6,
     DEC_Absolute = 0xCE,
+    DEC_AbsoluteX = 0xDE,
 
     DEX_Implied = 0xCA,
 
